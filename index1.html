@@ -301,7 +301,7 @@
           placeholder="Type a question about the contract..."
           autocomplete="off"
         />
-        <button type="submit" class="btn">Send</button>
+        <button type="button" id="sendBtn" class="btn">Send</button>
       </form>
     </section>
   </main>
@@ -316,9 +316,9 @@
       const fileName = document.getElementById("fileName");
       const clearBtn = document.getElementById("clearBtn");
 
-      const chatForm = document.getElementById("chatForm");
       const chatInput = document.getElementById("chatInput");
       const chatMessages = document.getElementById("chatMessages");
+      const sendBtn = document.getElementById("sendBtn");
 
       // Production webhook URL for this workflow. Requires the workflow's
       // "Active" toggle to be on in the n8n editor. While testing, you can
@@ -431,8 +431,7 @@
         return "Received an empty response from the workflow.";
       }
 
-      chatForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+      async function sendMessage() {
         const text = chatInput.value.trim();
         if (!text) return;
 
@@ -465,6 +464,14 @@
         } catch (err) {
           thinkingEl.remove();
           addMessage(`Could not reach the workflow: ${err.message}`, "error");
+        }
+      }
+
+      sendBtn.addEventListener("click", sendMessage);
+      chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          sendMessage();
         }
       });
     })();
