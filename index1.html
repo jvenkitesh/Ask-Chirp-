@@ -320,7 +320,11 @@
       const chatInput = document.getElementById("chatInput");
       const chatMessages = document.getElementById("chatMessages");
 
-      const N8N_WEBHOOK_URL = "https://n8n.cloud";
+      // Production webhook URL for this workflow. Requires the workflow's
+      // "Active" toggle to be on in the n8n editor. While testing, you can
+      // swap this for the /webhook-test/ URL, but that one only answers a
+      // single request after clicking "Execute workflow" on the canvas.
+      const N8N_WEBHOOK_URL = "https://jyotiv99.app.n8n.cloud/webhook/691fc3ff-53e1-465b-8b17-363c9a5cce45";
       let currentObjectUrl = null;
       let selectedFile = null;
 
@@ -402,3 +406,68 @@
         messageEl.className = `chat-message ${role}`;
 
         const bubble = document.createElement("div");
+        bubble.className = isThinking ? "bubble thinking-bubble" : "bubble";
+        bubble.textContent = text;
+
+        messageEl.appendChild(bubble);
+        chatMessages.appendChild(messageEl);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return messageEl;
+      }
+
+      function extractReplyText(data) {
+        if (typeof data === "string") return data;
+        if (Array.isArray(data)) return extractReplyText(data[0]);
+        if (data && typeof data === "object") {
+          return (
+            data.reply ||
+            data.response ||
+            data.message ||
+            data.output ||
+            data.text ||
+            JSON.stringify(data)
+          );
+        }
+        return "Received an empty response from the workflow.";
+      }
+
+      chatForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        addMessage(text, "user");
+        chatInput.value = "";
+
+        const thinkingEl = addMessage("Thinking...", "assistant", true);
+
+        try {
+          const response = await fetch(N8N_WEBHOOK_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message: text,
+              fileName: selectedFile ? selectedFile.name : null,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`Workflow returned ${response.status} ${response.statusText}`);
+          }
+
+          const contentType = response.headers.get("content-type") || "";
+          const data = contentType.includes("application/json")
+            ? await response.json()
+            : await response.text();
+
+          thinkingEl.remove();
+          addMessage(extractReplyText(data), "assistant");
+        } catch (err) {
+          thinkingEl.remove();
+          addMessage(`Could not reach the workflow: ${err.message}`, "error");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
