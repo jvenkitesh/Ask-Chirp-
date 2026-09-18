@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contract Review</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Contract Review</h1>
+  </header>
+
+  <main class="app-main">
+    <section class="panel contract-panel">
+      <div class="panel-header">
+        <h2>Contract</h2>
+      </div>
+
+      <div id="dropZone" class="drop-zone">
+        <input type="file" id="fileInput" accept="application/pdf" hidden />
+        <div class="drop-zone-content">
+          <p class="drop-zone-title">Drag &amp; drop a PDF here</p>
+          <p class="drop-zone-subtitle">or</p>
+          <button id="browseBtn" type="button" class="btn">Browse Files</button>
+        </div>
+      </div>
+
+      <div id="pdfViewer" class="pdf-viewer" hidden>
+        <div class="pdf-toolbar">
+          <span id="fileName" class="file-name"></span>
+          <button id="clearBtn" type="button" class="btn btn-secondary">Remove</button>
+        </div>
+        <embed id="pdfEmbed" class="pdf-embed" type="application/pdf" />
+      </div>
+    </section>
+
+    <section class="panel chat-panel">
+      <div class="panel-header">
+        <h2>Chat</h2>
+      </div>
+
+      <div id="chatMessages" class="chat-messages">
+        <div class="chat-message assistant">
+          <div class="bubble">Upload a contract and ask me anything about it.</div>
+        </div>
+      </div>
+
+      <form id="chatForm" class="chat-input-row">
+        <input
+          id="chatInput"
+          type="text"
+          placeholder="Type a question about the contract..."
+          autocomplete="off"
+        />
+        <button type="submit" class="btn">Send</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
