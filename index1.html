@@ -441,13 +441,20 @@
         const thinkingEl = addMessage("Thinking...", "assistant", true);
 
         try {
+          // Sent as multipart/form-data (not JSON) so the actual PDF bytes
+          // reach the workflow under the "data" field, matching the Webhook
+          // node's "Field Name for Binary Data" setting. Do not set a
+          // Content-Type header here: fetch generates the multipart
+          // boundary itself when the body is a FormData instance.
+          const formData = new FormData();
+          formData.append("message", text);
+          if (selectedFile) {
+            formData.append("data", selectedFile, selectedFile.name);
+          }
+
           const response = await fetch(N8N_WEBHOOK_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              message: text,
-              fileName: selectedFile ? selectedFile.name : null,
-            }),
+            body: formData,
           });
 
           if (!response.ok) {
