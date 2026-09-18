@@ -355,9 +355,17 @@
         dropZone.hidden = false;
       }
 
-      browseBtn.addEventListener("click", () => fileInput.click());
-      dropZone.addEventListener("click", () => fileInput.click());
+      // Open file browser when clicking the button or the zone text
+      browseBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
+      
+      dropZone.addEventListener("click", () => {
+        fileInput.click();
+      });
 
+      // FIXED: Correctly extracts the specific single file item [0]
       fileInput.addEventListener("change", () => {
         if (fileInput.files && fileInput.files[0]) {
           loadPdf(fileInput.files[0]);
@@ -394,8 +402,3 @@
         messageEl.className = `chat-message ${role}`;
 
         const bubble = document.createElement("div");
-        bubble.className = isThinking ? "bubble thinking-bubble" : "bubble";
-        bubble.textContent = text;
-
-        messageEl.appendChild(bubble);
-        chatMessages.appendChild(messageEl);
